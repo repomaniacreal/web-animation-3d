@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Little Afternoon — A Room to Explore</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@500&display=swap');
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #211d19;
+            color: #fcf5e9;
+            font-family: 'DM Sans', sans-serif
+        }
+
+        canvas {
+            display: block
+        }
+
+        #shade {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background: radial-gradient(ellipse at center, transparent 40%, #21170c25)
+        }
+
+        header {
+            position: fixed;
+            left: 32px;
+            top: 26px;
+            pointer-events: none
+        }
+
+        small {
+            font-size: 10px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #eed7b6
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 500;
+            font-size: 27px;
+            margin: 7px 0
+        }
+
+        #time {
+            position: fixed;
+            right: 30px;
+            top: 30px;
+            font-size: 11px;
+            letter-spacing: 2px
+        }
+
+        #cross {
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            width: 5px;
+            height: 5px;
+            border: 1px solid #fff9;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none
+        }
+
+        #hint {
+            position: fixed;
+            bottom: 72px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            background: #29231dd9;
+            padding: 10px 18px;
+            border-radius: 30px;
+            display: none;
+            white-space: nowrap
+        }
+
+        footer {
+            position: fixed;
+            bottom: 26px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 10px;
+            letter-spacing: 1.5px;
+            color: #fff9;
+            pointer-events: none
+        }
+
+        #veil {
+            position: fixed;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            background: #1c181c75;
+            backdrop-filter: blur(7px)
+        }
+
+        .card {
+            width: min(440px, 90vw);
+            padding: 42px;
+            background: #f8f1e8ee;
+            color: #413b32;
+            border: 1px solid #fff8;
+            border-radius: 4px;
+            box-shadow: 0 30px 100px #0003
+        }
+
+        .card h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 40px;
+            font-weight: 500;
+            margin: 14px 0
+        }
+
+        .card p {
+            font-size: 13px;
+            line-height: 1.9;
+            color: #756b60
+        }
+
+        .card small {
+            color: #9b7950
+        }
+
+        button {
+            border: 0;
+            background: #675a44;
+            color: white;
+            padding: 15px 24px;
+            font: inherit;
+            cursor: pointer;
+            border-radius: 2px;
+            margin-top: 12px;
+            width: 100%
+        }
+
+        .keys {
+            font-size: 11px;
+            line-height: 2.2;
+            margin-top: 18px;
+            color: #80766a
+        }
+
+        #notice {
+            position: fixed;
+            left: 50%;
+            top: 95px;
+            transform: translateX(-50%);
+            padding: 12px 20px;
+            border-radius: 3px;
+            background: #f7efdfef;
+            color: #574c40;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity .4s;
+            pointer-events: none
+        }
+
+        #touch {
+            display: none;
+            position: fixed;
+            bottom: 65px;
+            left: 20px;
+            gap: 6px;
+            grid-template-columns: repeat(3, 46px)
+        }
+
+        #touch button {
+            margin: 0;
+            padding: 13px;
+            background: #514b42aa
+        }
+
+        #act {
+            display: none;
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            background: #514b42aa
+        }
+
+        #error {
+            display: none;
+            color: #bd4b31
+        }
+
+        @media(pointer:coarse) {
+            #touch {
+                display: grid
+            }
+
+            #act {
+                display: block
+            }
+
+            header {
+                left: 20px;
+                top: 20px
+            }
+
+            footer {
+                font-size: 8px
+            }
+        }
+    </style>
+    <script
+        type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"}}</script>
+</head>
+
+<body>
+    <header><small>A quiet little escape</small>
+        <h1>Little Afternoon</h1>
+    </header>
+    <div id="time">16:42 · AT HOME</div>
+    <div id="shade"></div>
+    <div id="cross"></div>
+    <div id="hint"></div>
+    <footer>W A S D · MOVE &nbsp; / &nbsp; MOUSE · LOOK &nbsp; / &nbsp; E · INTERACT &nbsp; / &nbsp; ESC · PAUSE
+    </footer>
+    <div id="veil">
+        <div class="card"><small>An interactive room</small>
+            <h2>Stay a little.</h2>
+            <p>Late sunlight, warm wood, and little things worth noticing. Explore your room and find five small
+                comforts tucked around it.</p><button id="start">Step inside →</button>
+            <div class="keys">WASD / arrow keys to walk · Mouse to look<br>E to interact · Shift to walk faster · Esc to
+                pause<br>On touchscreens: drag to look and use the arrow buttons.</div>
+            <p id="error"></p>
+        </div>
+    </div>
+    <div id="notice"></div>
+    <div id="touch"><span></span><button data-key="KeyW">↑</button><span></span><button
+            data-key="KeyA">←</button><button data-key="KeyS">↓</button><button data-key="KeyD">→</button></div><button
+        id="act">E</button>
+    <script type="module">
+        import * as THREE from 'three';
+        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' }); renderer.setSize(innerWidth, innerHeight); renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05; renderer.outputColorSpace = THREE.SRGBColorSpace; document.body.prepend(renderer.domElement);
+        const scene = new THREE.Scene(); scene.background = new THREE.Color('#c6d4dc'); scene.fog = new THREE.Fog('#d9ccba', 16, 40); const camera = new THREE.PerspectiveCamera(65, innerWidth / innerHeight, .04, 65); camera.position.set(0, 1.63, 3.3); camera.rotation.order = 'YXZ'; let yaw = 0, pitch = -.04, active = false, elapsed = 0; const clock = new THREE.Clock(); const keys = {}, solids = [], targets = [], found = new Set();
+        function texture(kind) { const c = document.createElement('canvas'); c.width = c.height = 512; const x = c.getContext('2d'); let seed = 54; const rand = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296 }; x.fillStyle = kind === 'wood' ? '#ad8057' : kind === 'fabric' ? '#e8dfce' : '#ece5d8'; x.fillRect(0, 0, 512, 512); for (let i = 0; i < (kind === 'wood' ? 2100 : 18000); i++) { let a = rand() * 512, b = rand() * 512; x.strokeStyle = `rgba(${kind === 'wood' ? '62,33,14' : '83,65,43'},${rand() * .13})`; x.lineWidth = kind === 'wood' ? rand() * 1.5 + .2 : .6; x.beginPath(); x.moveTo(a, b); x.lineTo(a + (kind === 'wood' ? rand() * 150 : 2), b + (kind === 'wood' ? rand() * 3 : 0)); x.stroke() } const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; return t }
+        const woodtex = texture('wood'), fabrictex = texture('fabric'), walltex = texture('wall');
+        const mat = (color, roughness = .65, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness, ...extra }); const oak = mat('#c69a6c', .48, { map: woodtex }), darkwood = mat('#71503d', .48, { map: woodtex }), wall = mat('#f1e9d9', .94, { map: walltex }), cream = mat('#f7eedb', .8), linen = mat('#f0e5ce', .98, { map: fabrictex }), sage = mat('#85967b', .9, { map: fabrictex }), pink = mat('#dba8a0', .85, { map: fabrictex }), brass = mat('#a7844b', .3, { metalness: .75 }), black = mat('#302d2a', .6), leaf = mat('#526e41', .7), ceramic = mat('#f6e7d2', .22), blue = mat('#829a9f', .7);
+        function box(w, h, d, m, x, y, z, parent = scene) { const a = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); a.position.set(x, y, z); a.castShadow = true; a.receiveShadow = true; parent.add(a); return a }
+        function ball(r, m, x, y, z, sx = 1, sy = 1, sz = 1, parent = scene) { const a = new THREE.Mesh(new THREE.SphereGeometry(r, 28, 20), m); a.position.set(x, y, z); a.scale.set(sx, sy, sz); a.castShadow = true; a.receiveShadow = true; parent.add(a); return a }
+        function cyl(rt, rb, h, m, x, y, z, parent = scene) { const a = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, 40), m); a.position.set(x, y, z); a.castShadow = true; a.receiveShadow = true; parent.add(a); return a }
+        function rounded(w, h, d, r, m, x, y, z, parent = scene) { const s = new THREE.Shape(); s.moveTo(-w / 2 + r, -h / 2); s.lineTo(w / 2 - r, -h / 2); s.quadraticCurveTo(w / 2, -h / 2, w / 2, -h / 2 + r); s.lineTo(w / 2, h / 2 - r); s.quadraticCurveTo(w / 2, h / 2, w / 2 - r, h / 2); s.lineTo(-w / 2 + r, h / 2); s.quadraticCurveTo(-w / 2, h / 2, -w / 2, h / 2 - r); s.lineTo(-w / 2, -h / 2 + r); s.quadraticCurveTo(-w / 2, -h / 2, -w / 2 + r, -h / 2); const g = new THREE.ExtrudeGeometry(s, { depth: d, bevelEnabled: true, bevelSize: .012, bevelThickness: .012, bevelSegments: 3, steps: 1 }); g.translate(0, 0, -d / 2); const a = new THREE.Mesh(g, m); a.position.set(x, y, z); a.castShadow = true; a.receiveShadow = true; parent.add(a); return a }
+        function solid(x, z, w, d) { solids.push({ x, z, w: w / 2 + .22, d: d / 2 + .22 }) }
+        function target(mesh, label, message, id, action) { targets.push({ mesh, label, message, id, action }) }
+        function plant(x, y, z, size = 1) { const g = new THREE.Group(); g.position.set(x, y, z); g.scale.setScalar(size); scene.add(g); cyl(.14, .1, .23, ceramic, 0, .115, 0, g); cyl(.125, .125, .012, darkwood, 0, .235, 0, g); for (let i = 0; i < 9; i++) { const a = i * 2.4; const stem = cyl(.008, .008, .4, leaf, Math.sin(a) * .065, .4, Math.cos(a) * .065, g); stem.rotation.z = Math.sin(a) * .35; const l = ball(.15, leaf, Math.sin(a) * .16, .42 + (i % 3) * .09, Math.cos(a) * .13, .5, 1.5, .3, g); l.rotation.set(.35, a, Math.sin(a) * .8) } return g }
+        function book(x, y, z, w, h, d, color, rot = 0) { const g = new THREE.Group(); g.position.set(x, y, z); g.rotation.y = rot; scene.add(g); box(w, h, d, mat(color), 0, 0, 0, g); box(w * .85, h * .92, d + .002, linen, 0, 0, .005, g); box(.017, h, d + .015, mat(color), -w / 2, 0, 0, g); return g }
+        scene.add(new THREE.HemisphereLight('#d9e8ff', '#b09370', 1.35)); const sun = new THREE.DirectionalLight('#ffe0aa', 3.8); sun.position.set(-5, 7, -5); sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); Object.assign(sun.shadow.camera, { left: -7, right: 7, top: 7, bottom: -7, near: .5, far: 25 }); sun.shadow.bias = -.0003; sun.shadow.normalBias = .025; sun.shadow.radius = 4; scene.add(sun); scene.add(sun.target);
+        // Architecture: deliberately separated window openings allow the sunlight into the room.
+        box(8, .15, 9, oak, 0, -.08, 0); for (let row = 0; row < 18; row++)for (let col = 0; col < 4; col++) { const x = -3 + col * 2 + (row % 2) * 1; if (x < 4) box(Math.min(1.985, 4 - x + 1), .012, .487, mat(row % 3 ? '#ba9068' : '#bd946e', .6, { map: woodtex }), x, .003, -4.25 + row * .5) }
+        box(.16, 3.2, 9, wall, -4, 1.6, 0); box(.16, 3.2, 9, wall, 4, 1.6, 0); box(8, 3.2, .16, wall, 0, 1.6, 4.5); box(8, .3, 9, cream, 0, 3.35, 0); box(2.5, 3.2, .16, wall, -2.75, 1.6, -4.5); box(2.5, 3.2, .16, wall, 2.75, 1.6, -4.5); box(3, .77, .16, wall, 0, .385, -4.5); box(3, .37, .16, wall, 0, 3.015, -4.5);
+        for (const x of [-3.9, 3.9]) box(.07, .12, 9, cream, x, .06, 0); box(8, .12, .07, cream, 0, .06, 4.4); box(8, .12, .07, cream, 0, .06, -4.39);
+        const sky = mat('#bfdbe8', 1, { emissive: '#b4d8ef', emissiveIntensity: .45 }); box(20, 10, .1, sky, 0, 4, -10); for (let i = 0; i < 14; i++)ball(.8, mat(i % 2 ? '#8b9c7d' : '#a4b093'), -7 + i, 0, -8, 1, 1.7, 1);
+        for (const x of [-1.53, 0, 1.53]) box(.07, 2.13, .14, cream, x, 1.8, -4.44); for (const y of [.74, 1.8, 2.85]) box(3.15, .065, .14, cream, 0, y, -4.44); box(3.4, .08, .4, oak, 0, .72, -4.32);
+        for (const side of [-1, 1]) { const geo = new THREE.PlaneGeometry(.68, 2.5, 28, 36); const pos = geo.attributes.position; for (let i = 0; i < pos.count; i++) { let x = pos.getX(i), y = pos.getY(i); pos.setZ(i, Math.sin(x * 49) * .045 + .025 * Math.sin(y * 3)); } geo.computeVertexNormals(); const curtain = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: '#eee6d6', roughness: 1, side: THREE.DoubleSide, transparent: true, opacity: .91 })); curtain.position.set(side * 1.78, 1.7, -4.18); curtain.castShadow = true; scene.add(curtain) } const rod = cyl(.022, .022, 4.3, brass, 0, 3, -4.14); rod.rotation.z = Math.PI / 2;
+        // Bed and layered textiles.
+        box(2.05, .27, 2.55, oak, -2.6, .26, -2.7); rounded(2.12, 1.15, .14, .13, oak, -2.6, .75, -3.97); rounded(1.98, .28, 2.43, .12, linen, -2.6, .49, -2.7); rounded(1.94, .2, 1.85, .09, sage, -2.6, .7, -2.32); for (let i = 0; i < 20; i++)box(.009, .009, 1.7, mat('#93a58a'), -3.5 + i * .095, .811, -2.35); rounded(1.95, .1, .5, .04, linen, -2.6, .83, -2.95); for (const x of [-3.08, -2.15]) { const p = rounded(.79, .18, .56, .085, linen, x, .78, -3.48); p.rotation.y = .06 } const pillow = rounded(.5, .42, .17, .09, pink, -2.6, .99, -3.48); pillow.rotation.x = -.2; solid(-2.6, -2.7, 2.1, 2.7);
+        // Small bear with individually modeled muzzle, paws and ears.
+        const bear = new THREE.Group(); bear.position.set(-2.02, .84, -2.95); scene.add(bear); const teddy = mat('#bb9570', .98, { map: fabrictex }); ball(.18, teddy, 0, .18, 0, 1, 1.15, .8, bear); ball(.15, teddy, 0, .44, 0, 1, 1, .85, bear); for (const s of [-1, 1]) { ball(.062, teddy, s * .115, .55, 0, 1, 1, .65, bear); ball(.07, teddy, s * .16, .23, .02, .65, 1.4, .7, bear); ball(.075, teddy, s * .09, .05, .09, 1, 1, .9, bear); ball(.012, black, s * .05, .465, .118, 1, 1, 1, bear) } ball(.063, cream, 0, .41, .11, 1, .7, .45, bear); ball(.018, black, 0, .43, .139, 1, .7, .6, bear); target(bear, 'Say hello to the bear', 'A tiny companion. An excellent listener.', 'bear');
+        // Side table and warm practical lamp.
+        box(.62, .07, .63, oak, -1.12, .57, -3.42); for (const x of [-1.36, -.88]) for (const z of [-3.65, -3.19]) box(.045, .55, .045, oak, x, .275, z); solid(-1.12, -3.42, .65, .65); cyl(.13, .16, .04, brass, -1.12, .63, -3.42); cyl(.017, .017, .35, brass, -1.12, .81, -3.42); const shade = cyl(.17, .25, .28, mat('#ffe8ba', .85, { side: THREE.DoubleSide }), -1.12, 1.06, -3.42); const lamp = new THREE.PointLight('#ffbe70', 12, 4, 2); lamp.position.set(-1.12, 1.01, -3.42); scene.add(lamp); let lampOn = true; target(shade, 'Toggle the bedside lamp', 'A little pool of amber light.', null, () => { lampOn = !lampOn; lamp.intensity = lampOn ? 12 : 0 });
+        // Writing desk below the window.
+        box(2.4, .1, .78, oak, .75, .79, -3.68); for (const x of [-.32, 1.82]) for (const z of [-3.96, -3.4]) box(.06, .75, .06, oak, x, .375, z); solid(.75, -3.68, 2.4, .8); box(.54, .28, .6, oak, 1.48, .58, -3.68); box(.49, .018, .02, darkwood, 1.48, .56, -3.367); ball(.023, brass, 1.48, .64, -3.345); book(.3, .859, -3.58, .42, .028, .29, '#879283', -.1); const journal = book(.38, .89, -3.56, .35, .035, .25, '#c3947a', -.18); target(journal, 'Read the little notebook', '“Make room for small, happy things.”', 'note');
+        function mug(x, y, z) { const g = new THREE.Group(); g.position.set(x, y, z); scene.add(g); cyl(.07, .058, .13, ceramic, 0, .065, 0, g); cyl(.059, .059, .004, mat('#604332', .18), 0, .132, 0, g); const ring = new THREE.Mesh(new THREE.TorusGeometry(.052, .012, 12, 32), ceramic); ring.position.set(.077, .07, 0); g.add(ring); return g } const cup = mug(.99, .85, -3.5); target(cup, 'Enjoy a quiet cup of tea', 'Chamomile and honey. Still warm.', 'tea'); plant(1.61, .85, -3.83, .75);
+        const chair = new THREE.Group(); chair.position.set(.5, 0, -2.62); scene.add(chair); rounded(.62, .085, .59, .1, oak, 0, .47, 0, chair); rounded(.58, .1, .51, .1, pink, 0, .56, 0, chair); rounded(.6, .57, .06, .13, oak, 0, .91, .24, chair); for (const x of [-.23, .23]) for (const z of [-.21, .21]) box(.035, .47, .035, oak, x, .235, z, chair); solid(.5, -2.62, .65, .65);
+        // Reading corner.
+        rounded(1.45, .31, .89, .12, linen, 2.95, .39, .9); rounded(1.45, .78, .22, .13, linen, 2.95, .86, 1.33); for (const x of [2.2, 3.7]) rounded(.18, .52, .94, .085, linen, x, .62, .9); for (const x of [2.42, 3.48]) for (const z of [.58, 1.23]) cyl(.035, .028, .26, oak, x, .13, z); rounded(.52, .43, .16, .08, sage, 2.65, .85, 1.12); const throwP = rounded(.46, .4, .16, .08, pink, 3.28, .84, 1.1); throwP.rotation.z = -.13; solid(2.95, .9, 1.7, 1.1);
+        // Rug, coffee table, cookies and vase.
+        const rug = rounded(3.15, 2.6, .024, .25, mat('#d4bc9c', 1, { map: fabrictex }), .05, .03, .9); rug.rotation.x = -Math.PI / 2; for (const x of [-1.5, 1.6]) for (let i = 0; i < 37; i++)box(.12, .008, .013, linen, x, .037, -.35 + i * .069);
+        cyl(.63, .65, .075, oak, .25, .48, .7); for (let i = 0; i < 3; i++) { const a = i * Math.PI * 2 / 3; const leg = cyl(.035, .045, .44, oak, .25 + Math.cos(a) * .4, .24, .7 + Math.sin(a) * .4); leg.rotation.z = Math.cos(a) * .11 } solid(.25, .7, 1.2, 1.2); cyl(.19, .17, .025, ceramic, .2, .535, .7); for (let i = 0; i < 3; i++) { let x = .1 + i * .09, z = .69 + (i % 2) * .065; cyl(.065, .065, .023, mat('#bc874b'), x, .56, z); for (let j = 0; j < 5; j++)ball(.008, darkwood, x + Math.cos(j * 2.4) * .04, .574, z + Math.sin(j * 2.4) * .04, 1, .4, 1) } const cookie = ball(.001, cream, .2, .58, .7); target(cookie, 'Take a little cookie', 'Butter, chocolate, and absolutely no hurry.', 'cookie');
+        // Cabinet, artwork and collectibles.
+        box(1.25, .73, .43, oak, -3.64, .385, .9); for (const z of [.5, .95, 1.3]) box(.018, .63, .018, darkwood, -3.414, .39, z); solid(-3.64, .9, .55, 1.4); plant(-3.64, .77, .56, .9); const bunny = new THREE.Group(); bunny.position.set(-3.61, .77, 1.15); bunny.rotation.y = Math.PI / 2; scene.add(bunny); ball(.11, ceramic, 0, .12, 0, 1, 1.2, .9, bunny); ball(.1, ceramic, 0, .28, 0, 1, 1, .9, bunny); for (const s of [-1, 1]) { ball(.041, ceramic, s * .05, .425, 0, .8, 2.3, .65, bunny); ball(.005, black, s * .034, .29, .088, 1, 1, 1, bunny); ball(.017, pink, s * .057, .265, .083, 1, .5, .3, bunny) } target(bunny, 'Admire the ceramic bunny', 'Two little ears. A very big personality.', 'bunny');
+        function art(x, y, z, w, h, side = false) { const g = new THREE.Group(); g.position.set(x, y, z); if (side) g.rotation.y = Math.PI / 2; scene.add(g); box(w + .08, h + .08, .05, oak, 0, 0, 0, g); box(w, h, .016, linen, 0, 0, .034, g); const sunArt = ball(.14, mat('#ca9470'), .06, .12, .05, 1, 1, .04, g); for (let i = 0; i < 3; i++) { const m = ball(w * .45, mat(['#9ca087', '#7d8d77', '#c3b598'][i]), -.1 + i * .12, -h * .45 - i * .07, .057 + i * .003, 1, .65, .018, g) } return g } art(-3.895, 1.98, .9, .8, 1.05, true); art(2.8, 1.9, 4.395, 1.05, .78).rotation.y = Math.PI;
+        box(1.3, .06, .25, oak, 3.82, 1.78, -1.6).rotation.y = Math.PI / 2; plant(3.78, 1.82, -1.92, .65); for (let i = 0; i < 5; i++)book(3.77, 1.98, -1.5 + i * .07, .15, .3, .05, ['#b58d7a', '#8d9b85', '#d0ba8c', '#819caa', '#d1a39d'][i], Math.PI / 2);
+        // Door, coat pegs and a small warm floor lamp.
+        rounded(.98, 2.36, .08, .025, mat('#d9c8ac'), 2.63, 1.2, 4.38); box(.07, 2.47, .13, cream, 2.09, 1.24, 4.33); box(.07, 2.47, .13, cream, 3.17, 1.24, 4.33); box(1.14, .07, .13, cream, 2.63, 2.48, 4.33); const handle = ball(.045, brass, 2.25, 1.1, 4.29, 1, .6, 1); target(handle, 'Try the door', 'Nothing to rush out for. Stay a little longer.');
+        cyl(.23, .26, .04, black, 3.3, .03, 2.35); cyl(.018, .018, 1.85, brass, 3.3, .97, 2.35); cyl(.23, .34, .38, linen, 3.3, 1.91, 2.35); const floorLight = new THREE.PointLight('#ffdb9d', 15, 5, 2); floorLight.position.set(3.3, 1.8, 2.35); scene.add(floorLight);
+        // Gentle suspended dust, visible only in the sunlight.
+        const dustGeo = new THREE.BufferGeometry(), dustPositions = new Float32Array(160 * 3); for (let i = 0; i < 160; i++) { dustPositions[i * 3] = Math.random() * 6 - 3; dustPositions[i * 3 + 1] = Math.random() * 2.9; dustPositions[i * 3 + 2] = Math.random() * 6 - 4 } dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPositions, 3)); const dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({ color: '#ffefce', size: .012, transparent: true, opacity: .34, depthWrite: false })); scene.add(dust);
+        const veil = document.getElementById('veil'), hint = document.getElementById('hint'), notice = document.getElementById('notice'); const touch = matchMedia('(pointer:coarse)').matches; let toastTimer, selected = null;
+        function toast(t) { notice.textContent = t; notice.style.opacity = 1; clearTimeout(toastTimer); toastTimer = setTimeout(() => notice.style.opacity = 0, 4500) }
+        function activate() { active = true; veil.style.display = 'none' }
+        document.getElementById('start').onclick = () => { if (touch) activate(); else if (renderer.domElement.requestPointerLock) { const p = renderer.domElement.requestPointerLock(); if (p?.catch) p.catch(() => { activate(); toast('Click and drag to look around.'); }) } else activate() }; document.addEventListener('pointerlockchange', () => { active = !!document.pointerLockElement; veil.style.display = active ? 'none' : 'grid'; if (!active) Object.keys(keys).forEach(k => keys[k] = false) }); document.addEventListener('pointerlockerror', () => { activate(); toast('Click and drag to look around.') });
+        let dragging = false, lastX = 0, lastY = 0; renderer.domElement.addEventListener('pointerdown', e => { dragging = true; lastX = e.clientX; lastY = e.clientY; renderer.domElement.setPointerCapture(e.pointerId) }); renderer.domElement.addEventListener('pointerup', () => dragging = false); document.addEventListener('pointermove', e => { if (!active) return; if (document.pointerLockElement) { yaw -= e.movementX * .002; pitch -= e.movementY * .002 } else if (dragging) { yaw -= (e.clientX - lastX) * .004; pitch -= (e.clientY - lastY) * .004; lastX = e.clientX; lastY = e.clientY } pitch = Math.max(-1.25, Math.min(1.25, pitch)) });
+        function interact() { if (!active || !selected) return; const t = selected; if (t.action) t.action(); if (t.id) { found.add(t.id); toast(t.message + '  ·  ' + found.size + '/5 comforts discovered'); if (found.size === 5) setTimeout(() => toast('All five comforts found. This little moment is yours.'), 4700) } else toast(t.message) }
+        document.addEventListener('keydown', e => { if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) e.preventDefault(); keys[e.code] = true; if (e.code === 'KeyE' && !e.repeat) interact(); if (e.code === 'Escape' && !document.pointerLockElement) { active = false; veil.style.display = 'grid' } }); document.addEventListener('keyup', e => keys[e.code] = false); window.addEventListener('blur', () => { Object.keys(keys).forEach(k => keys[k] = false) }); document.querySelectorAll('[data-key]').forEach(b => { b.onpointerdown = e => { e.preventDefault(); keys[b.dataset.key] = true; b.setPointerCapture(e.pointerId) }; b.onpointerup = b.onpointercancel = () => keys[b.dataset.key] = false }); document.getElementById('act').onclick = interact;
+        const ray = new THREE.Raycaster(), center = new THREE.Vector2(), tmp = new THREE.Vector3(); function canMove(x, z) { return Math.abs(x) < 3.7 && Math.abs(z) < 4.18 && !solids.some(b => Math.abs(x - b.x) < b.w && Math.abs(z - b.z) < b.d) }
+        function frame() {
+            requestAnimationFrame(frame); const dt = Math.min(clock.getDelta(), .04); elapsed += dt; camera.rotation.set(pitch, yaw, 0); if (active) { let f = (keys.KeyW || keys.ArrowUp ? 1 : 0) - (keys.KeyS || keys.ArrowDown ? 1 : 0), s = (keys.KeyD || keys.ArrowRight ? 1 : 0) - (keys.KeyA || keys.ArrowLeft ? 1 : 0); const len = Math.hypot(f, s) || 1, speed = (keys.ShiftLeft ? 2.5 : 1.6) * dt; f /= len; s /= len; const dx = (-Math.sin(yaw) * f + Math.cos(yaw) * s) * speed, dz = (-Math.cos(yaw) * f - Math.sin(yaw) * s) * speed; if (canMove(camera.position.x + dx, camera.position.z)) camera.position.x += dx; if (canMove(camera.position.x, camera.position.z + dz)) camera.position.z += dz; camera.position.y = 1.63 + (f || s ? Math.sin(elapsed * 9) * .012 : Math.sin(elapsed * 1.3) * .002) }
+            ray.setFromCamera(center, camera); selected = null; let nearest = 2.45; for (const t of targets) { const hits = ray.intersectObject(t.mesh, true); if (hits.length && hits[0].distance < nearest) { const hit = hits[0]; const blockers = ray.intersectObjects(scene.children, true).filter(h => h.object.isMesh && h.object.visible && !(h.object.material?.transparent) && h.distance < hit.distance - .03); if (!blockers.length) { nearest = hit.distance; selected = t } } } hint.style.display = active && selected ? 'block' : 'none'; if (selected) hint.textContent = 'E  ·  ' + selected.label + (selected.id && found.has(selected.id) ? '  ✓' : ''); dust.rotation.y = Math.sin(elapsed * .04) * .025; renderer.render(scene, camera)
+        } frame(); window.addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight) });
+    </script>
+    <script>window.addEventListener('error', e => { if (e.message?.includes('Script error')) return; const p = document.getElementById('error'); p.style.display = 'block'; p.textContent = 'The room could not load. Please check your internet connection and use a current WebGL-enabled browser.' });</script>
+</body>
+
+</html>
